@@ -9,7 +9,7 @@ pip install -r requirements.txt
 
 **启动**
 ```bash
-uvicorn manager:app --host 0.0.0.0 --reload
+python manager.py
 ```
 
 python 3.9+
