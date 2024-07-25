@@ -13,7 +13,7 @@ class Sm2(ICipher):
             asn1=False,
         )
         encrypted_data_bytes = base64.b64decode(data["data"])
-        decrypted_data = cipher.decrypt(encrypted_data_bytes)
+        decrypted_data = cipher.decrypt(encrypted_data_bytes[1:])
         assert decrypted_data
         return json.loads(decrypted_data.decode())
 
@@ -27,5 +27,5 @@ class Sm2(ICipher):
         encrypted_data = cipher.encrypt(json_data)
         assert encrypted_data
         return {
-            "data": base64.b64encode(encrypted_data).decode(),
+            "data": base64.b64encode(b"\x04" + encrypted_data).decode(),
         }

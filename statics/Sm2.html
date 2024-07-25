@@ -66,11 +66,11 @@
 
         function encrypt(data) {
             const encrypted = sm2.doEncrypt(data, '04' + publicKey, 0);
-            return hexToBase64(encrypted);
+            return hexToBase64('04'+encrypted);
         }
 
         function decrypt(data) {
-            const decryptedHex = sm2.doDecrypt(base64ToHex(data), privateKey, 0);
+            const decryptedHex = sm2.doDecrypt(base64ToHex(data).substring(2), privateKey, 0);
             return decryptedHex;
         }
 
