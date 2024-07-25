@@ -15,7 +15,7 @@
 </head>
 <body>
     <h1>SM4 Encryption</h1>
-    <b>描述：该页面使用SM4算法在CBC模式下对数据进行加密请求，并展示解密后的结果。</b>
+    <b>描述：使用SM4算法在CBC模式下对数据进行加密请求，并展示解密后的结果。</b>
 <br>
 <br>
     <form id="userForm">
@@ -55,12 +55,10 @@
 
         function encryptSM4(data) {
             const encryptedBytes = sm4.encrypt(data, SM4_KEY, {mode: 'cbc', iv: SM4_IV});
-            // Convert encrypted bytes to Base64
             return encodeBase64(hexToByteArray(encryptedBytes));
         }
 
         function decryptSM4(data) {
-            // Decode Base64 to bytes
             const encryptedBytes = decodeBase64(data);
             const decryptedBytes = sm4.decrypt(encryptedBytes, SM4_KEY, {mode: 'cbc', iv: SM4_IV});
             return decryptedBytes;

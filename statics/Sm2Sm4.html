@@ -75,12 +75,10 @@
 
         function encryptSM4(data, key) {
             const encryptedBytes = sm4.encrypt(data, stringToHex(key), {mode: 'ecb'});
-            // Convert encrypted bytes to Base64
             return encodeBase64(hexToByteArray(encryptedBytes));
         }
 
         function decryptSM4(data, key) {
-            // Decode Base64 to bytes
             const encryptedBytes = decodeBase64(data);
             const decryptedBytes = sm4.decrypt(encryptedBytes, stringToHex(key), {mode: 'ecb'});
             return decryptedBytes;

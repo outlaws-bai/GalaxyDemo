@@ -9,7 +9,7 @@
             margin-top: 20px;
             padding: 10px;
             border: 1px solid #ccc;
-            white-space: pre-wrap; /* Preserve whitespace and formatting */
+            white-space: pre-wrap;
         }
     </style>
 </head>
@@ -26,14 +26,14 @@
     <div id="result">result:</div>
 
     <script>
-        const cipherName = 'aes-cbc'; // Change this to match your endpoint
+        const cipherName = 'aes-cbc';
 
         document.getElementById('userForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
             const username = document.getElementById('username').value;
-            const key = CryptoJS.enc.Utf8.parse('32byteslongsecretkeyforaes256!aa'); // Replace with your actual key
-            const iv = CryptoJS.enc.Utf8.parse('16byteslongiv456');  // Replace with your actual IV
+            const key = CryptoJS.enc.Utf8.parse('32byteslongsecretkeyforaes256!aa'); 
+            const iv = CryptoJS.enc.Utf8.parse('16byteslongiv456');
 
             const data = { username: username };
             const encrypted = CryptoJS.AES.encrypt(JSON.stringify(data), key, {

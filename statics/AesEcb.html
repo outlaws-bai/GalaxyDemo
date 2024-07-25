@@ -27,13 +27,13 @@
 
 
     <script>
-        const cipherName = 'aes-ecb'; // Change this to match your endpoint
+        const cipherName = 'aes-ecb';
 
         document.getElementById('userForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
             const username = document.getElementById('username').value;
-            const key = CryptoJS.enc.Utf8.parse('32byteslongsecretkeyforaes256!aa'); // Replace with your actual key
+            const key = CryptoJS.enc.Utf8.parse('32byteslongsecretkeyforaes256!aa'); 
 
             const data = { username: username };
             const encrypted = CryptoJS.AES.encrypt(JSON.stringify(data), key, {

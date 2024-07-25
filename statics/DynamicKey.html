@@ -9,7 +9,7 @@
             margin-top: 20px;
             padding: 10px;
             border: 1px solid #ccc;
-            white-space: pre-wrap; /* Preserve whitespace and formatting */
+            white-space: pre-wrap; 
         }
     </style>
 </head>
@@ -27,7 +27,7 @@
 
 
     <script>
-        const cipherName = 'dynamic-key'; // Change this to match your endpoint
+        const cipherName = 'dynamic-key';
 
         let _key = '';
         let _iv = '';
@@ -48,8 +48,8 @@
             event.preventDefault();
 
             const username = document.getElementById('username').value;
-            const key = CryptoJS.enc.Utf8.parse(_key); // Replace with your actual key
-            const iv = CryptoJS.enc.Utf8.parse(_iv);  // Replace with your actual IV
+            const key = CryptoJS.enc.Utf8.parse(_key);
+            const iv = CryptoJS.enc.Utf8.parse(_iv);
 
             const data = { username: username };
             const encrypted = CryptoJS.AES.encrypt(JSON.stringify(data), key, {
