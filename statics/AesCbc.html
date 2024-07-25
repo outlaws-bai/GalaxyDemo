@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AES CBC Encryption</title>
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
+    <style>
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            white-space: pre-wrap; /* Preserve whitespace and formatting */
+        }
+    </style>
+</head>
+<body>
+    <h1>AES CBC Encryption</h1>
+    <b>描述：通过AES CBC模式使用指定的密钥和IV对用户输入的数据进行加密请求，并对服务器响应的数据进行解密。</b>
+    <br>
+    <br>
+    <form id="userForm">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" value="user1">
+        <button type="submit">Query</button>
+    </form>
+    <div id="result">result:</div>
+
+    <script>
+        const cipherName = 'aes-cbc'; // Change this to match your endpoint
+
+        document.getElementById('userForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const key = CryptoJS.enc.Utf8.parse('32byteslongsecretkeyforaes256!aa'); // Replace with your actual key
+            const iv = CryptoJS.enc.Utf8.parse('16byteslongiv456');  // Replace with your actual IV
+
+            const data = { username: username };
+            const encrypted = CryptoJS.AES.encrypt(JSON.stringify(data), key, {
+                iv: iv,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            }).toString();
+
+            fetch(`/api/${cipherName}/getUserInfo`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ data: encrypted })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const decrypted = CryptoJS.AES.decrypt(data.data, key, {
+                    iv: iv,
+                    mode: CryptoJS.mode.CBC,
+                    padding: CryptoJS.pad.Pkcs7
+                });
+                const decryptedData = JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
+                document.getElementById('result').innerText = 'Response: ' + JSON.stringify(decryptedData);
+            })
+            .catch(error => {
+                document.getElementById('result').innerText = 'Error: ' + error.message;
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

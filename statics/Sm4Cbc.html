@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SM4 Encryption</title>
+    <script src="https://cdn.jsdelivr.net/npm/sm-crypto@0.3.13/dist/sm4.js"></script>
+    <style>
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            white-space: pre-wrap; /* Preserve whitespace and formatting */
+        }
+    </style>
+</head>
+<body>
+    <h1>SM4 Encryption</h1>
+    <b>描述：该页面使用SM4算法在CBC模式下对数据进行加密请求，并展示解密后的结果。</b>
+<br>
+<br>
+    <form id="userForm">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" value="user1">
+        <button type="submit">Query</button>
+    </form>
+    <div id="result">result:</div>
+
+
+    <script>
+        function stringToHex(str) {
+            const encoder = new TextEncoder();
+            const byteArray = encoder.encode(str);
+            return Array.from(byteArray).map(byte => byte.toString(16).padStart(2, '0')).join('');
+        }
+
+        function hexToByteArray(hex) {
+            const byteArray = new Uint8Array(hex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+            return byteArray;
+        }
+
+        const SM4_KEY = stringToHex("16byteslongkey12");
+        const SM4_IV = stringToHex("16byteslongiv456");
+
+
+        
+        function encodeBase64(byteArray) {
+            const binaryString = String.fromCharCode(...byteArray);
+            return btoa(binaryString);
+        }
+
+        function decodeBase64(base64String) {
+            const binaryString = atob(base64String);
+            return new Uint8Array([...binaryString].map(char => char.charCodeAt(0)));
+        }
+
+        function encryptSM4(data) {
+            const encryptedBytes = sm4.encrypt(data, SM4_KEY, {mode: 'cbc', iv: SM4_IV});
+            // Convert encrypted bytes to Base64
+            return encodeBase64(hexToByteArray(encryptedBytes));
+        }
+
+        function decryptSM4(data) {
+            // Decode Base64 to bytes
+            const encryptedBytes = decodeBase64(data);
+            const decryptedBytes = sm4.decrypt(encryptedBytes, SM4_KEY, {mode: 'cbc', iv: SM4_IV});
+            return decryptedBytes;
+        }
+
+        document.getElementById('userForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const encryptedData = encryptSM4(JSON.stringify({ username }));
+
+            fetch(`/api/sm4-cbc/getUserInfo`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ data: encryptedData })
+            })
+            .then(response => response.json())
+            .then(data => {
+                try {
+                    const decryptedText = decryptSM4(data.data);
+                    document.getElementById('result').innerText = 'Response: ' + decryptedText;
+                } catch (error) {
+                    document.getElementById('result').innerText = 'Decryption Error: ' + error.message;
+                }
+            })
+            .catch(error => {
+                document.getElementById('result').innerText = 'Error: ' + error.message;
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

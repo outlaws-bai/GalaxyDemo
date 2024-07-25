@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SM2 Encryption</title>
+    <script src="https://cdn.jsdelivr.net/npm/sm-crypto@0.3.13/dist/sm2.js"></script>
+    <style>
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            white-space: pre-wrap; /* Preserve whitespace and formatting */
+        }
+    </style>
+</head>
+<body>
+    <h1>SM2 Encryption</h1>
+    <b>描述：使用SM2算法对用户输入的数据进行加密，并将加密后的数据发送到服务器；服务器响应的加密数据使用另外一组SM2私钥进行解密。</b>
+    <br>
+    <br>
+    <form id="userForm">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" value="user1">
+        <button type="submit">Query</button>
+    </form>
+    <div id="result">result:</div>
+
+
+    <script>
+        const SM2_PUB_BASE64_KEY1 = "MFkwEwYHKoZIzj0CAQYIKoEcz1UBgi0DQgAEBv9Z+xbmSOH3W/V9UEpU1yUiJKNGh/I8EiENTPYxX3GujsZyKhuEUzxloKCATcNaKWi7w/yK3PxGONM4xvMlIQ==";
+        const SM2_PRI_BASE64_KEY2 = "MIGTAgEAMBMGByqGSM49AgEGCCqBHM9VAYItBHkwdwIBAQQgP8vW9tEh0dMP5gJNsol5Gyc6jvvgK1NRqOVg8VaLYVygCgYIKoEcz1UBgi2hRANCAAT/WSYiOU5+yob2E3hv87eGJIj3USuBUN6oH1g6AIWJSIXI+jfakIeHr3XMaegCPSX8/XfYLIuAF4fpNRr9OstS";
+
+        function base64ToHex(base64) {
+            const raw = atob(base64);
+            let hex = '';
+            for (let i = 0; i < raw.length; i++) {
+                const charCode = raw.charCodeAt(i);
+                hex += ('0' + charCode.toString(16)).slice(-2);
+            }
+            return hex.toUpperCase();
+        }
+
+        function hexToBase64(hex) {
+            let str = '';
+            for (let i = 0; i < hex.length; i += 2) {
+                str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+            }
+            return btoa(str);
+        }
+
+        function parseSm2Pri(privateKey){
+            pri_hex = base64ToHex(privateKey);
+            return pri_hex.substr(72, 64);
+        }
+
+        function parseSm2Pub(publicKey){
+            pub_hex = base64ToHex(publicKey);
+            return pub_hex.substr(pub_hex.length-128, pub_hex.length);
+        }
+
+        const publicKey = parseSm2Pub(SM2_PUB_BASE64_KEY1);
+        const privateKey = parseSm2Pri(SM2_PRI_BASE64_KEY2);
+
+        console.log(publicKey)
+        console.log(privateKey)
+
+        function encrypt(data) {
+            const encrypted = sm2.doEncrypt(data, '04' + publicKey, 0);
+            return hexToBase64(encrypted);
+        }
+
+        function decrypt(data) {
+            const decryptedHex = sm2.doDecrypt(base64ToHex(data), privateKey, 0);
+            return decryptedHex;
+        }
+
+        document.getElementById('userForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const encryptedData = encrypt(JSON.stringify({ username }));
+
+            fetch(`/api/sm2/getUserInfo`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ data: encryptedData })
+            })
+            .then(response => response.json())
+            .then(data => {
+                try {
+                    const decryptedText  = decrypt(data.data);
+                    document.getElementById('result').innerText = 'Response: ' + decryptedText;
+                } catch (error) {
+                    document.getElementById('result').innerText = 'Decryption Error: ' + error.message;
+                }
+            })
+            .catch(error => {
+                document.getElementById('result').innerText = 'Error: ' + error.message;
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

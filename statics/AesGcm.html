@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AES GCM Encryption</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/forge/0.10.0/forge.min.js"></script>
+    <style>
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            white-space: pre-wrap; /* Preserve whitespace and formatting */
+        }
+    </style>
+</head>
+<body>
+    <h1>AES GCM Encryption</h1>
+    <b>描述：通过AES GCM模式使用指定的密钥和IV对用户输入的数据进行加密请求，并对服务器响应的数据进行解密。</b>
+    <br>
+    <br>
+    <form id="userForm">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" value="user1">
+        <button type="submit">Query</button>
+    </form>
+    <div id="result">result:</div>
+
+
+    <script>
+        const AES_KEY = forge.util.hexToBytes(forge.util.createBuffer("32byteslongsecretkeyforaes256!aa").toHex());
+        const AES_IV = forge.util.hexToBytes(forge.util.createBuffer("16byteslongiv456").toHex());
+        const AES_TAG_LEN = 128;
+
+        function encrypt(data) {
+            const cipher = forge.cipher.createCipher('AES-GCM', AES_KEY);
+            cipher.start({
+                iv: AES_IV,
+                tagLength: AES_TAG_LEN
+            });
+            cipher.update(forge.util.createBuffer(data));
+            cipher.finish();
+            const encrypted = cipher.output.getBytes();
+            const tag = cipher.mode.tag.getBytes();
+            return forge.util.encode64(encrypted + tag);
+        }
+
+        function decrypt(data) {
+            const decoded = forge.util.decode64(data);
+            const encrypted = decoded.substring(0, decoded.length - AES_TAG_LEN / 8);
+            const tag = decoded.substring(decoded.length - AES_TAG_LEN / 8);
+            const decipher = forge.cipher.createDecipher('AES-GCM', AES_KEY);
+            decipher.start({
+                iv: AES_IV,
+                tagLength: AES_TAG_LEN,
+                tag: forge.util.createBuffer(tag)
+            });
+            decipher.update(forge.util.createBuffer(encrypted));
+            const pass = decipher.finish();
+            if (pass) {
+                return decipher.output.toString();
+            } else {
+                throw new Error('Decryption failed');
+            }
+        }
+
+        document.getElementById('userForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const encryptedData = encrypt(JSON.stringify({ username }));
+
+            fetch(`/api/aes-gcm/getUserInfo`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ data: encryptedData })
+            })
+            .then(response => response.json())
+            .then(data => {
+                try {
+                    const decryptedText = decrypt(data.data);
+                    document.getElementById('result').innerText = 'Response: ' + decryptedText;
+                } catch (error) {
+                    document.getElementById('result').innerText = 'Decryption Error: ' + error.message;
+                }
+            })
+            .catch(error => {
+                document.getElementById('result').innerText = 'Error: ' + error.message;
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
