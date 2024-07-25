@@ -11,35 +11,6 @@ app = FastAPI()
 cipher_map = get_cipher_map()
 
 
-def generate_index_html():
-    html_files = [f for f in os.listdir("statics") if f.endswith(".html")]
-    links = "\n".join(
-        [
-            f'<li><a href="/{file}">{file}</a></li>'
-            for file in html_files
-            if not file.startswith("Index")
-        ]
-    )
-    index_content = f"""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Index</title>
-    </head>
-    <body>
-        <h1>Index of HTML Files</h1>
-        <ul>
-            {links}
-        </ul>
-    </body>
-    </html>
-    """
-    with open(os.path.join("statics", "Index.html"), "w") as f:
-        f.write(index_content)
-
-
 users_db = {
     "user1": {"id": 1, "name": "Alice", "email": "alice@example.com"},
     "user2": {"id": 2, "name": "Bob", "email": "bob@example.com"},
@@ -83,7 +54,6 @@ async def get_user_info(cipher_name, json_body: dict[str, t.Any] = Body(...)):
 
 
 if __name__ == "__main__":
-    generate_index_html()
     import uvicorn
 
     uvicorn.run(app, host="0.0.0.0", port=8000)
