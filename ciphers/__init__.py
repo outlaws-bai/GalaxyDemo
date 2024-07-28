@@ -77,5 +77,5 @@ class Constants:
     SM4_IV = AES_IV
     DES_KEY = "12345678"
     DES_IV = "12345678"
-    DES3_KEY = "012345671234567822345679"
-    DES3_IV = "12345678"
+    DES3_KEY = "24byteslongKeyfordes3!aa"
+    DES3_IV = "8bytesIv"

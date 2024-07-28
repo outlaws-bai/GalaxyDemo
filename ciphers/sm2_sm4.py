@@ -14,7 +14,7 @@ class Sm2Sm4(ICipher):
         )
 
         encrypted_key_bytes = base64.b64decode(data["key"])
-        decrypted_key = cipher_sm2.decrypt(encrypted_key_bytes)
+        decrypted_key = cipher_sm2.decrypt(encrypted_key_bytes[1:])
         assert decrypted_key
 
         encrypted_data_bytes = base64.b64decode(data["data"])
@@ -43,5 +43,5 @@ class Sm2Sm4(ICipher):
 
         return {
             "data": base64.b64encode(encrypted_data).decode(),
-            "key": base64.b64encode(encrypted_key).decode(),
+            "key": base64.b64encode(b'\x04'+encrypted_key).decode(),
         }
