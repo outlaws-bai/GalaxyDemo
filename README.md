@@ -1,6 +1,8 @@
 # GalaxyDemo
 HTTP报文二次加密的具体实现，用于测试 https://github.com/outlaws-bai/Galaxy 中的示例
 
+> python 3.8+
+
 **场景**
 
 `AesCbc`: 通过AES CBC模式使用指定的密钥和IV对用户输入的数据进行加密请求，并对服务器响应的数据进行解密。
@@ -32,4 +34,3 @@ pip install -r requirements.txt
 python manager.py
 ```
 
-python 3.9+

@@ -1,12 +1,11 @@
 import json
 import base64
-import typing as t
 from Crypto.Cipher import AES
 from . import ICipher, Constants
 
 
 class AesGcm(ICipher):
-    def decrypt(self, data: dict[str, t.Any]) -> dict[str, t.Any]:
+    def decrypt(self, data):
         encrypted_data_bytes = base64.b64decode(data["data"])
         cipher = AES.new(
             Constants.AES_KEY.encode(),
@@ -19,7 +18,7 @@ class AesGcm(ICipher):
         )
         return json.loads(decrypted_data.decode())
 
-    def encrypt(self, data: dict[str, t.Any]) -> dict[str, t.Any]:
+    def encrypt(self, data):
         json_data = json.dumps(data)
         cipher = AES.new(
             Constants.AES_KEY.encode(),

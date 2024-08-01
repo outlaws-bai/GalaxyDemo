@@ -1,17 +1,16 @@
 import base64
 import random
 import string
-import typing as t
 from abc import ABCMeta, abstractmethod
 
 
 class ICipher(metaclass=ABCMeta):
     @abstractmethod
-    def decrypt(self, data: dict[str, t.Any]) -> dict[str, t.Any]:
+    def decrypt(self, data):
         """解密"""
 
     @abstractmethod
-    def encrypt(self, data: dict[str, t.Any]) -> dict[str, t.Any]:
+    def encrypt(self, data):
         """加密"""
 
 

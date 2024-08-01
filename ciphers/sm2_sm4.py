@@ -1,13 +1,12 @@
 import json
 import base64
-import typing as t
 from gmssl import sm2, sm4
 from Crypto.Util.Padding import pad, unpad
 from . import ICipher, Constants, reandom_str, parse_sm2_pri, parse_sm2_pub
 
 
 class Sm2Sm4(ICipher):
-    def decrypt(self, data: dict[str, t.Any]) -> dict[str, t.Any]:
+    def decrypt(self, data):
         cipher_sm2 = sm2.CryptSM2(
             parse_sm2_pri(Constants.SM2_PRI_BASE64_KEY1),
             parse_sm2_pub(Constants.SM2_PUB_BASE64_KEY1),
@@ -25,7 +24,7 @@ class Sm2Sm4(ICipher):
         # print(decrypted_data)
         return json.loads(decrypted_padded_data.decode())
 
-    def encrypt(self, data: dict[str, t.Any]) -> dict[str, t.Any]:
+    def encrypt(self, data):
         cipher_sm2 = sm2.CryptSM2(
             parse_sm2_pri(Constants.SM2_PRI_BASE64_KEY2),
             parse_sm2_pub(Constants.SM2_PUB_BASE64_KEY2),
@@ -43,5 +42,5 @@ class Sm2Sm4(ICipher):
 
         return {
             "data": base64.b64encode(encrypted_data).decode(),
-            "key": base64.b64encode(b'\x04'+encrypted_key).decode(),
+            "key": base64.b64encode(b"\x04" + encrypted_key).decode(),
         }

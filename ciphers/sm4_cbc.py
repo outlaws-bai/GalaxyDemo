@@ -1,12 +1,11 @@
 import json
 import base64
-import typing as t
 from gmssl import sm4
 from . import ICipher, Constants
 
 
 class Sm4Cbc(ICipher):
-    def decrypt(self, data: dict[str, t.Any]) -> dict[str, t.Any]:
+    def decrypt(self, data):
         encrypted_data_bytes = base64.b64decode(data["data"])
         cipher = sm4.CryptSM4()
         cipher.set_key(Constants.SM4_KEY.encode(), 1)
@@ -15,7 +14,7 @@ class Sm4Cbc(ICipher):
         )
         return json.loads(decrypted_padded_data.decode())
 
-    def encrypt(self, data: dict[str, t.Any]) -> dict[str, t.Any]:
+    def encrypt(self, data):
         json_data = json.dumps(data).encode()
         cipher = sm4.CryptSM4()
         cipher.set_key(Constants.SM4_KEY.encode(), 0)

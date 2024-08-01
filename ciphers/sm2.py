@@ -1,12 +1,11 @@
 import json
 import base64
-import typing as t
 from gmssl import sm2
 from . import ICipher, Constants, parse_sm2_pri, parse_sm2_pub
 
 
 class Sm2(ICipher):
-    def decrypt(self, data: dict[str, t.Any]) -> dict[str, t.Any]:
+    def decrypt(self, data):
         cipher = sm2.CryptSM2(
             parse_sm2_pri(Constants.SM2_PRI_BASE64_KEY1),
             parse_sm2_pub(Constants.SM2_PUB_BASE64_KEY1),
@@ -17,7 +16,7 @@ class Sm2(ICipher):
         assert decrypted_data
         return json.loads(decrypted_data.decode())
 
-    def encrypt(self, data: dict[str, t.Any]) -> dict[str, t.Any]:
+    def encrypt(self, data):
         cipher = sm2.CryptSM2(
             parse_sm2_pri(Constants.SM2_PRI_BASE64_KEY2),
             parse_sm2_pub(Constants.SM2_PUB_BASE64_KEY2),

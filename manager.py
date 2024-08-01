@@ -1,6 +1,5 @@
 import os
 import json
-import typing as t
 from ciphers import get_cipher_map, reandom_str
 from ciphers.dynamic_key import DynamicKey
 from fastapi import FastAPI, Body, HTTPException
@@ -38,13 +37,13 @@ async def get_secret():
 
 
 @app.post("/api/{cipher_name}/getUserInfo", response_class=JSONResponse)
-async def get_user_info(cipher_name, json_body: dict[str, t.Any] = Body(...)):
+async def get_user_info(cipher_name, json_body=Body(...)):
     # 解密请求
     cipher = cipher_map[cipher_name]
     row_data = cipher.decrypt(json_body)
     print(f"decryptde data: {row_data}")
     # 业务逻辑
-    username = row_data.get("username")
+    username = row_data.get("username")  # type: ignore
     if not username or username not in users_db:
         raise HTTPException(status_code=404, detail="User not found")
     user_info = users_db[username]
