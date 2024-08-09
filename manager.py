@@ -1,5 +1,6 @@
 import os
 import json
+from jinja2 import Template
 from ciphers import get_cipher_map, reandom_str
 from ciphers.dynamic_key import DynamicKey
 from fastapi import FastAPI, Body, HTTPException
@@ -50,6 +51,21 @@ async def get_user_info(cipher_name, json_body=Body(...)):
     print(f"response data : {user_info}")
     # 加密响应
     return JSONResponse(cipher.encrypt(user_info))
+
+
+@app.post("/api/aes-cbc/ssti", response_class=JSONResponse)
+async def ssti(json_body=Body(...)):
+    # 解密请求
+    cipher = cipher_map["aes-cbc"]
+    row_data = cipher.decrypt(json_body)
+    print(f"decryptde data: {row_data}")
+    # 业务逻辑
+    calc = row_data.get("calc")  # type: ignore
+    if not calc:
+        raise HTTPException(status_code=404, detail="calc not found")
+    template_string = "{{" + calc + "}}"
+    response_text = Template(template_string).render()
+    return JSONResponse(cipher.encrypt(response_text))
 
 
 if __name__ == "__main__":
