@@ -28,15 +28,6 @@ async def render_html(name):
         return HTMLResponse(content=f.read(), status_code=200)
 
 
-@app.get("/api/getSecret")
-async def get_secret():
-    key = reandom_str(32)
-    iv = reandom_str(16)
-    DynamicKey.key = key
-    DynamicKey.iv = iv
-    return {"key": key, "iv": iv}
-
-
 @app.post("/api/{cipher_name}/getUserInfo", response_class=JSONResponse)
 async def get_user_info(cipher_name, json_body=Body(...)):
     # 解密请求

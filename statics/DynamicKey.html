@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Dynamic Key Encryption</title>
     <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.0.0/jsencrypt.min.js"></script>
     <style>
         #result {
             margin-top: 20px;
@@ -15,7 +16,7 @@
 </head>
 <body>
     <h1>AES CBC Encryption</h1>
-    <b>描述：通过从服务器获取动态生成的密钥和IV，对用户输入的数据进行AES CBC加密发送请求，并对服务器响应的数据进行解密。</b>
+    <b>描述：客户端生成随机AES密钥，AES加密数据，RSA加密随机密钥，响应用随机密钥通过AES加密</b>
     <br>
     <br>
     <form id="userForm">
@@ -29,47 +30,35 @@
     <script>
         const cipherName = 'dynamic-key';
 
-        let _key = '';
-        let _iv = '';
+        const RSA_PUB_BASE64_KEY = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC7JoQAWLsovzHjaUMZg2lwO4LCuP97mitUc4chqRlQD3NgyCWLqEnYyM+OJ7i6cyMuWLwGtMi29DoKLjpE/xRZR0OUk46PDCAtyDgIyejK7c7KlZTbiqb4PtiJNLZgg0UP62kLMycnpY/wg/R2G9g+7MiJWUV5SR+Lhryv8CWezQIDAQAB";
 
-        async function getSecret() {
-            try {
-                const response = await fetch('/api/getSecret');
-                const data = await response.json();
-                _key = data.key;
-                _iv = data.iv;
-            } catch (error) {
-                console.error('Error fetching the secret:', error);
-            }
-        }
-        window.onload = getSecret;
+        const rsa_encryptor = new JSEncrypt();
+        rsa_encryptor.setPublicKey(RSA_PUB_BASE64_KEY);
 
         document.getElementById('userForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
             const username = document.getElementById('username').value;
-            const key = CryptoJS.enc.Utf8.parse(_key);
-            const iv = CryptoJS.enc.Utf8.parse(_iv);
+            const _key = generateRandomString(32);
 
             const data = { username: username };
-            const encrypted = CryptoJS.AES.encrypt(JSON.stringify(data), key, {
-                iv: iv,
-                mode: CryptoJS.mode.CBC,
+            const encrypted_data = CryptoJS.AES.encrypt(JSON.stringify(data), CryptoJS.enc.Utf8.parse(_key), {
+                mode: CryptoJS.mode.ECB,
                 padding: CryptoJS.pad.Pkcs7
             }).toString();
+            const encrypted_key = rsa_encryptor.encrypt(_key);
 
             fetch(`/api/${cipherName}/getUserInfo`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ data: encrypted })
+                body: JSON.stringify({ data: encrypted_data, key:encrypted_key })
             })
             .then(response => response.json())
             .then(data => {
-                const decrypted = CryptoJS.AES.decrypt(data.data, key, {
-                    iv: iv,
-                    mode: CryptoJS.mode.CBC,
+                const decrypted = CryptoJS.AES.decrypt(data.data, CryptoJS.enc.Utf8.parse(_key), {
+                    mode: CryptoJS.mode.ECB,
                     padding: CryptoJS.pad.Pkcs7
                 });
                 const decryptedData = JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
@@ -80,6 +69,16 @@
                 console.error('Error:', error);
             });
         });
+
+        function generateRandomString(length) {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            const charactersLength = characters.length;
+            for (let i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            }
+            return result;
+        }
     </script>
 </body>
 </html>
