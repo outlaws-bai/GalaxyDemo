@@ -27,6 +27,8 @@ HTTP报文二次加密的具体实现，用于测试 https://github.com/outlaws-
 
 `3DES`：通过DES3 CBC模式使用指定的密钥和IV对用户输入的数据进行加密请求，并对服务器响应的数据进行解密。
 
+`LinkPassiveScanner`: AES CBC加密 + jinja2 SSTI注入，用来测试Galaxy联动被动代理扫描器。
+
 **安装依赖**
 
 ```bash
