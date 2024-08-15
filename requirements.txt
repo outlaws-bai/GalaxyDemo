@@ -3,3 +3,4 @@ pycryptodome
 gmssl
 jinja2
 uvicorn
+sqlalchemy
