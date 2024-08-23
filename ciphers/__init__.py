@@ -30,7 +30,7 @@ def reandom_str(length):
     )
 
 
-def get_cipher_map() -> dict[str, ICipher]:
+def get_cipher_map():
     from .aes_cbc import AesCbc
     from .aes_ecb import AesEcb
     from .aes_gcm import AesGcm
