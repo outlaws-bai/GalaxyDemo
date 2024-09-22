@@ -1,7 +1,10 @@
+import base64
 import sqlite3
 import traceback
-from ciphers import get_cipher_map
-from fastapi import FastAPI, Body, HTTPException
+from Crypto.Cipher import AES
+from ciphers import get_cipher_map, Constants
+from Crypto.Util.Padding import pad, unpad
+from fastapi import FastAPI, Body, HTTPException, Query, Form
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 
 # uvicorn manager:app --host 0.0.0.0 --reload
@@ -52,6 +55,64 @@ async def get_user_info(cipher_name, json_body=Body(...)):
     print(f"response data : {user_info}")
     # 加密响应
     return JSONResponse(cipher.encrypt(user_info))
+
+
+@app.get("/api/aes-cbc/getUserInfoByQuery", response_class=JSONResponse)
+async def get_user_info_aes_cbc_get(username: str = Query(...)):
+    # 解密请求
+    encrypted_data_bytes = base64.b64decode(username)
+    cipher = AES.new(
+        Constants.AES_KEY.encode(), AES.MODE_CBC, Constants.AES_IV.encode()
+    )
+    decrypted_data = unpad(cipher.decrypt(encrypted_data_bytes), AES.block_size)
+    print(f"decryptde data: {decrypted_data}")
+    # 业务逻辑
+    username = decrypted_data.decode()  # type: ignore
+    if not username:
+        raise HTTPException(status_code=404, detail="User not found")
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+    query = f"SELECT * FROM users WHERE name = '{username}'"
+    try:
+        cursor.execute(query)
+        result = cursor.fetchone()
+        if result is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        user_info = {"id": result[0], "name": result[1], "email": result[2]}
+    except Exception:
+        user_info = {"status": "fail", "message": traceback.format_exc()}
+    print(f"response data : {user_info}")
+    # 加密响应
+    return JSONResponse(get_cipher_map()["aes-cbc"].encrypt(user_info))
+
+
+@app.post("/api/aes-cbc/getUserInfoByForm", response_class=JSONResponse)
+async def get_user_info_aes_cbc_post_form(username: str = Form(...)):
+    # 解密请求
+    encrypted_data_bytes = base64.b64decode(username)
+    cipher = AES.new(
+        Constants.AES_KEY.encode(), AES.MODE_CBC, Constants.AES_IV.encode()
+    )
+    decrypted_data = unpad(cipher.decrypt(encrypted_data_bytes), AES.block_size)
+    print(f"decryptde data: {decrypted_data}")
+    # 业务逻辑
+    username = decrypted_data.decode()  # type: ignore
+    if not username:
+        raise HTTPException(status_code=404, detail="User not found")
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+    query = f"SELECT * FROM users WHERE name = '{username}'"
+    try:
+        cursor.execute(query)
+        result = cursor.fetchone()
+        if result is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        user_info = {"id": result[0], "name": result[1], "email": result[2]}
+    except Exception:
+        user_info = {"status": "fail", "message": traceback.format_exc()}
+    print(f"response data : {user_info}")
+    # 加密响应
+    return JSONResponse(get_cipher_map()["aes-cbc"].encrypt(user_info))
 
 
 if __name__ == "__main__":

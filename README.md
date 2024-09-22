@@ -27,6 +27,11 @@ HTTP报文二次加密的具体实现，用于测试 https://github.com/outlaws-
 
 `3DES`：通过DES3 CBC模式使用指定的密钥和IV对用户输入的数据进行加密请求，并对服务器响应的数据进行解密。
 
+`AesCbcQuery`：通过AES CBC模式使用指定的密钥和IV对用户输入的数据进行加密请求，并对服务器响应的数据进行解密。只是请求为get
+
+`AesCbcForm`：通过AES CBC模式使用指定的密钥和IV对用户输入的数据进行加密请求，并对服务器响应的数据进行解密。只是请求为post-form
+
+`AesCbcFormData`：通过AES CBC模式使用指定的密钥和IV对用户输入的数据进行加密请求，并对服务器响应的数据进行解密。只是请求为post-formdata
 
 **安装依赖**
 
