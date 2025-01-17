@@ -1,5 +1,5 @@
 # GalaxyDemo
-HTTP报文二次加密的具体实现，用于给 https://github.com/outlaws-bai/Galaxy 提供服务以测试
+HTTP报文二次加密的具体实现，用于给 https://github.com/outlaws-bai/Galaxy 提供服务以测试及展示
 
 > python 3.8+
 
