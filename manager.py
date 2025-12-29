@@ -5,7 +5,12 @@ from Crypto.Cipher import AES
 from ciphers import get_cipher_map, Constants
 from Crypto.Util.Padding import pad, unpad
 from fastapi import FastAPI, Body, HTTPException, Query, Form
-from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from fastapi.responses import (
+    HTMLResponse,
+    RedirectResponse,
+    JSONResponse,
+    PlainTextResponse,
+)
 
 # uvicorn manager:app --host 0.0.0.0 --reload
 app = FastAPI()
@@ -29,6 +34,12 @@ async def read_index():
 async def render_html(name):
     with open(f"statics/{name}.html", encoding="utf-8") as f:
         return HTMLResponse(content=f.read(), status_code=200)
+
+
+@app.get("/{name}.js", response_class=HTMLResponse)
+async def render_js(name):
+    with open(f"statics/{name}.js", encoding="utf-8") as f:
+        return PlainTextResponse(content=f.read(), status_code=200)
 
 
 @app.post("/api/{cipher_name}/getUserInfo", response_class=JSONResponse)

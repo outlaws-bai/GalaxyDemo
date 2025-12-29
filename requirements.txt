@@ -4,3 +4,4 @@ gmssl
 jinja2
 uvicorn
 sqlalchemy
+python-multipart
